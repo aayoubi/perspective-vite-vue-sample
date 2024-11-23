@@ -1,51 +1,37 @@
 <script setup>
-import perspective from "@finos/perspective";
-import "@finos/perspective-viewer";
-import "@finos/perspective-viewer-d3fc";
-import "@finos/perspective-viewer-datagrid";
-import "@finos/perspective-viewer/dist/css/solarized.css";
+import { onMounted, ref, useTemplateRef } from 'vue';
 
-const perspectiveRef = ref(null);
+import '@finos/perspective-viewer/dist/css/pro.css';
+import '@finos/perspective-viewer/dist/esm/perspective-viewer.inline.js';
+import '@finos/perspective-viewer-datagrid';
+import '@finos/perspective-viewer-d3fc';
 
-const data = [
-  { x: 1, y: 2 },
-  { x: 2, y: 3 },
-  { x: 3, y: 4 },
-];
-const table = await perspective.worker().table(data);
-perspectiveRef.load(table);
+import perspective from '@finos/perspective/dist/esm/perspective.inline.js';
+
+const perspectiveViewerRef = useTemplateRef('perspective-viewer');
+
+onMounted(async () => {
+  const resp = await fetch(
+    'https://cdn.jsdelivr.net/npm/superstore-arrow/superstore.arrow'
+  );
+  const data = await resp.arrayBuffer();
+  const worker = await perspective.worker()
+  const table = await worker.table(data);
+  perspectiveViewerRef.value.load(table);
+});
 
 </script>
 
 <template>
-  <perspective-viewer :ref="perspectiveRef"></perspective-viewer>
+  <perspective-viewer ref="perspective-viewer" ></perspective-viewer>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+perspective-viewer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
 }
 </style>
